@@ -73,11 +73,20 @@ if [ "$USE_INJECT" = "1" ]; then
         done
     fi
 
-    # ---- [ds_core] + [[ds_core.accounts]] ----
+    # ---- [ds_core] + 拟态身份 + [[ds_core.accounts]] ----
     {
         echo "[ds_core]"
         echo 'model_types = ["default"]'
         echo "hourly_request_quota = ${DS_HOURLY_QUOTA:-60}"
+
+        # 拟态身份档位：DS_EMULATION=android 时切换为原生安卓 App 档
+        # （与 deeperseeker 同路线：上游对安卓客户端头不强制 AWS WAF）
+        if [ "${DS_EMULATION:-}" = "android" ]; then
+            echo 'emulation = "okhttp4_12"'
+            echo 'user_agent = "DeepSeek/2.5.0 Android/35"'
+            echo 'client_platform = "android"'
+            echo 'client_os = "android"'
+        fi
         echo
     } >> "$CFG"
 
